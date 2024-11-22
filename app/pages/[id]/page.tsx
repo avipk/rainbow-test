@@ -1,5 +1,4 @@
 import RainbowSlot from "@/components/RainbowSlot";
-import SlotCreator from "@/components/RainbowSlot";
 
 interface PageProps {
     params: Promise<{ id: string }>

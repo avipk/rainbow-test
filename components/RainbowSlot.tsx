@@ -1,16 +1,13 @@
 'use client';
 
-import useRainbowSlotAdder from "@/app/hooks/useRainbowSlotAdder";
-import { useEffect } from "react";
+import useRegisterSlot from "@/app/hooks/useRegisterSlot";
 
 interface RainbowSlotProps {
     id: string;
 }
 
 export default function RainbowSlot({ id }: RainbowSlotProps) {
-    const slotAdder = useRainbowSlotAdder();
-
-    useEffect(() => slotAdder(id), [id, slotAdder]);
+    useRegisterSlot(id);
 
     return (
         <div>slot {id}</div>

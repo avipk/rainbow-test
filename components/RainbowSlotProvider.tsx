@@ -1,30 +1,25 @@
 'use client'
-import { usePathname } from "next/navigation";
-import { createContext, useEffect, useState } from "react";
+import { createContext, useMemo, } from "react";
 
 interface RainbowslotProviderProps {
     children: React.ReactNode;
 }
 
-type SlotsContextType = Set<string>;
+interface SlotsContextType {
+    slots: Set<string>;
+};
 
-export const RainbowSlotContext = createContext<SlotsContextType>(new Set());
+const slots: Set<string> = new Set();
+export const RainbowSlotContext = createContext<SlotsContextType>({ slots });
 
 export default function RainbowslotProvider({ children }: RainbowslotProviderProps) {
-    const [slots, setSlots] = useState<SlotsContextType>(new Set());
-
-    const pathname = usePathname();
-
-    useEffect(() => {
-        setSlots(new Set());
-        console.info(':::: slots where reset');
-    }, [pathname]);
+    const ctx: SlotsContextType = useMemo(() => ({ slots }), []);
 
     return (
         <>
-            <RainbowSlotContext.Provider value={slots}>
+            <RainbowSlotContext.Provider value={ctx}>
                 {children}
-                <div className="slots">Slots: {slots.size ? [...slots].join(', ') : 'Empty'}</div>
+                <div className="slots">Slots: -{[...slots].join(', ')}-</div>
             </RainbowSlotContext.Provider>
         </>
     );
