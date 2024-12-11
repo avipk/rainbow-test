@@ -23,7 +23,10 @@ export default function RainbowSlot({ id }: RainbowSlotProps) {
     return (
         <div>
             <div>slot {id}</div>
-            <div>{slotData?.toolId || 'noop'}</div>
+            {slotData?.toolId
+                ? <div style={{ backgroundColor: 'pink', padding: '24px' }}>{slotData?.toolId || 'noop'}</div>
+                : null}
+
         </div>
     );
 }

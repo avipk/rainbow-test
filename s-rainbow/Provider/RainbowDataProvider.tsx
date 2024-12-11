@@ -60,12 +60,14 @@ export default function RainbowDataProvider({ children }: RainbowDataProviderPro
     }
 
     useEffect(() => {
-        const fetchData = async () => {
-            const data = await Promise.resolve(mockData);
+        const fetchData = () => {
+            setTimeout(async () => {
+                const data = await Promise.resolve(mockData);
 
-            if (data) {
-                setRainbowData(data.data.Rainbow.tools);
-            }
+                if (data) {
+                    setRainbowData(data.data.Rainbow.tools);
+                }
+            }, 3000);
         };
 
         if (slotIds.current.size > 0) {
