@@ -1,4 +1,4 @@
-import RainbowSlot from "@/components/RainbowSlot";
+import RainbowSlot from "@/s-rainbow/components/RainbowSlot";
 
 interface PageProps {
     params: Promise<{ id: string }>
@@ -10,7 +10,7 @@ export default async function Page({ params, }: PageProps) {
     return (
         <>
             <div>Page is: {slug}</div>
-            <RainbowSlot id={`slot_${slug}`} />
+            <RainbowSlot id={`slot-${slug}`} />
         </>
     );
 }
