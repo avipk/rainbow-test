@@ -1,12 +1,18 @@
 'use client';
 
 import mockData from './mockData';
-import { usePathname } from "next/navigation";
 import { createContext, useEffect, useRef, useState } from "react";
-import { RainbowToolFragment } from '../types';
+import { FactProvider, RainbowToolFragment } from '../types';
+import useFacts from '../hooks/useFacts';
 
-interface RainbowDataProviderProps {
+export interface RainbowDataProviderProps {
     children: React.ReactNode;
+    /**
+     * Determines when the provider should refetch data. 
+     * Example: pass the URL 'pathname' to trigger refetch on navigation
+     */
+    invalidateProp: string | string[] | (() => string);
+    factsProviders: FactProvider[];
 }
 
 interface TRainbowSlotsContext {
@@ -41,11 +47,26 @@ const defaultRainbowDataContext: TRainbowDataContext = {
 export const RainbowDataContext = createContext<TRainbowDataContext>(defaultRainbowDataContext);
 export const RainbowSlotsContext = createContext<TRainbowSlotsContext>(defaultRainbowSlotsContext);
 
+function getInvalidateKey(invalidateProp: RainbowDataProviderProps['invalidateProp']) {
+    let key: string;
 
-export default function RainbowDataProvider({ children }: RainbowDataProviderProps) {
+    if (typeof invalidateProp === 'function') {
+        key = invalidateProp();
+    } else if (Array.isArray(invalidateProp)) {
+        key = invalidateProp.join(',');
+    } else {
+        key = invalidateProp;
+    }
+
+    return key;
+}
+
+
+export default function RainbowDataProvider({ children, invalidateProp, factsProviders }: RainbowDataProviderProps) {
     const slotIds = useRef(new Set<string>());
     const [rainbowData, setRainbowData] = useState<TRainbowDataContext['data']>([]);
-    const pathname = usePathname();
+
+    const [facts, isPending] = useFacts(factsProviders);
 
     function registerSlot(slotId: string) {
         slotIds.current.add(slotId);
@@ -59,9 +80,16 @@ export default function RainbowDataProvider({ children }: RainbowDataProviderPro
         return [...slotIds.current];
     }
 
+    const invalidateKey = getInvalidateKey(invalidateProp);
+
     useEffect(() => {
         const fetchData = () => {
+            if (!facts || Object.keys(facts).length === 0 || isPending) {
+                return;
+            }
+
             setTimeout(async () => {
+                const f = facts;
                 const data = await Promise.resolve(mockData);
 
                 if (data) {
@@ -71,9 +99,10 @@ export default function RainbowDataProvider({ children }: RainbowDataProviderPro
         };
 
         if (slotIds.current.size > 0) {
+            console.info(':::::::::::::::: fetching data');
             fetchData();
         }
-    }, [pathname]);
+    }, [facts, invalidateKey]);
 
     return (
         <RainbowSlotsContext.Provider value={{ registerSlot, unregisterSlot, getSlotsList }}>

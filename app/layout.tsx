@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import RainbowslotProvider from "@/s-rainbow/Provider/RainbowDataProvider";
+import RainbowslotProvider from "@/s-rainbow/Provider/PathnameRefetchRainbowDataProvider";
 import Link from "next/link";
 
 export const metadata: Metadata = {
