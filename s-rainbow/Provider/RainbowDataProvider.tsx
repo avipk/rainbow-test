@@ -4,6 +4,7 @@ import mockData from './mockData';
 import { createContext, useEffect, useRef, useState } from "react";
 import { FactProvider, RainbowToolFragment } from '../types';
 import useFacts from '../hooks/useFacts';
+import FactsRegistry from './FactsRegistry';
 
 export interface RainbowDataProviderProps {
     children: React.ReactNode;
@@ -46,6 +47,7 @@ const defaultRainbowDataContext: TRainbowDataContext = {
 
 export const RainbowDataContext = createContext<TRainbowDataContext>(defaultRainbowDataContext);
 export const RainbowSlotsContext = createContext<TRainbowSlotsContext>(defaultRainbowSlotsContext);
+export const RainbowFactsRegistryContext = createContext<FactsRegistry | null>(null);
 
 function getInvalidateKey(invalidateProp: RainbowDataProviderProps['invalidateProp']) {
     let key: string;
@@ -64,6 +66,7 @@ function getInvalidateKey(invalidateProp: RainbowDataProviderProps['invalidatePr
 
 export default function RainbowDataProvider({ children, invalidateProp, factsProviders }: RainbowDataProviderProps) {
     const slotIds = useRef(new Set<string>());
+    const factsRegistry = useRef(new FactsRegistry());
     const [rainbowData, setRainbowData] = useState<TRainbowDataContext['data']>([]);
 
     const [facts, isPending] = useFacts(factsProviders);
@@ -102,13 +105,15 @@ export default function RainbowDataProvider({ children, invalidateProp, factsPro
             console.info(':::::::::::::::: fetching data');
             fetchData();
         }
-    }, [facts, invalidateKey]);
+    }, [facts, invalidateKey, isPending]);
 
     return (
         <RainbowSlotsContext.Provider value={{ registerSlot, unregisterSlot, getSlotsList }}>
-            <RainbowDataContext.Provider value={{ data: rainbowData }}>
-                {children}
-            </RainbowDataContext.Provider>
+            <RainbowFactsRegistryContext.Provider value={factsRegistry.current}>
+                <RainbowDataContext.Provider value={{ data: rainbowData }}>
+                    {children}
+                </RainbowDataContext.Provider>
+            </RainbowFactsRegistryContext.Provider>
         </RainbowSlotsContext.Provider>
     );
 
