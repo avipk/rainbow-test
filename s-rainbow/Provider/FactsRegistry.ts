@@ -1,27 +1,30 @@
 import { JsonValue } from "../types";
 
-type FactProvider = () => JsonValue | Promise<JsonValue>;
+type FactSupplier = () => JsonValue | Promise<JsonValue>;
 type FactUpdater = () => Promise<void>;
-type Subscriber = (key: string, value: JsonValue) => void;
+type PendingSubscriber = (isPending: boolean) => void;
+export type FactSubscriber = (key: string, value: JsonValue) => void;
 
 class FactsRegistry {
     private pending: Set<Promise<JsonValue>>;
     private facts: Map<string, JsonValue>;
+    private subscribers: Map<string, Set<FactSubscriber>>;
+    private pendingSubscribers: Set<PendingSubscriber>;
     private updaters: Map<string, FactUpdater>;
-    private subscribers: Set<(key: string, value: JsonValue) => void>;
-
-    constructor() {
+    
+    constructor() {        
         this.facts = new Map();
-        this.updaters = new Map();
-        this.subscribers = new Set();
+        this.subscribers = new Map();
         this.pending = new Set();
+        this.updaters = new Map();
+        this.pendingSubscribers = new Set();
     }
 
-    registerFact(key: string, provider: FactProvider): FactUpdater {
-        this.generateValue(key, provider);
+    registerFact(key: string, supplier: FactSupplier): FactUpdater {
+        this.generateValue(key, supplier);
 
         const updater = async () => {
-            const value = await this.generateValue(key, provider);
+            const value = await this.generateValue(key, supplier);
             this.notifySubscribers(key, value);
         };
 
@@ -30,26 +33,46 @@ class FactsRegistry {
         return updater;
     }
 
-    subscribe(subsriber: Subscriber) {
-        this.subscribers.add(subsriber);
+    subscribe(key: string, subsriber: FactSubscriber) {
+        if (!this.subscribers.has(key)) {
+            this.subscribers.set(key, new Set());
+        }
+
+        this.subscribers.get(key)?.add(subsriber);
 
         const unsubscribe = () => {
-            this.subscribers.delete(subsriber);
+            this.subscribers.get(key)?.delete(subsriber);
         };
 
-        return unsubscribe();
+        return unsubscribe;
     }
 
-    getFacts() {
+    subscribePending(subscriber: PendingSubscriber) {
+        this.pendingSubscribers.add(subscriber);
+
+        const unsubscribe = () => this.pendingSubscribers.delete(subscriber);
+
+        return unsubscribe;
+    }
+
+    getFact(key: string) {
+        return this.facts.get(key);
+    }
+
+    getAllFacts() {
         return Object.fromEntries(this.facts.entries());
+    }
+
+    getUpdater(key: string) {
+        return this.updaters.get(key);
     }
 
     isPending() {
         return this.pending.size > 0;
     }
 
-    private async generateValue(key: string, provider: FactProvider) {
-        let value = provider();
+    private async generateValue(key: string, supplier: FactSupplier) {
+        let value = supplier();
 
         if (!(value instanceof Promise)) {
             value = Promise.resolve(value);
@@ -66,7 +89,7 @@ class FactsRegistry {
     }
 
     private notifySubscribers(key: string, value: JsonValue) {
-        this.subscribers.forEach(subscriber => subscriber(key, value));
+        this.subscribers.get(key)?.forEach(subscriber => subscriber(key, value));
     }
 }
 

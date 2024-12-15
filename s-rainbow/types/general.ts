@@ -8,7 +8,7 @@ export type JsonValue =
   | JsonValue[]
   | JsonObject;
 
-export type FactProvider = () => [ string, JsonValue|Promise<JsonObject> ];
+export type FactProvider = () => JsonValue|Promise<JsonObject>;
 
 export type Facts = { [key: string]: JsonValue };
 export interface RainbowToolFragment {
