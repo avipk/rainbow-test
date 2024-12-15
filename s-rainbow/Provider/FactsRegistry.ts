@@ -11,8 +11,8 @@ class FactsRegistry {
     private subscribers: Map<string, Set<FactSubscriber>>;
     private pendingSubscribers: Set<PendingSubscriber>;
     private updaters: Map<string, FactUpdater>;
-    
-    constructor() {        
+
+    constructor() {
         this.facts = new Map();
         this.subscribers = new Map();
         this.pending = new Set();
@@ -77,19 +77,38 @@ class FactsRegistry {
         if (!(value instanceof Promise)) {
             value = Promise.resolve(value);
         } else {
-            this.pending.add(value);
+            this.addPending(value);
         }
 
-        value.then(resolved => {
-            this.facts.set(key, resolved);
-            this.pending.delete(value);
-        });
+        value
+            .then(resolved => this.facts.set(key, resolved))
+            .finally(() => this.removePending(value));
 
         return value;
     }
 
+    private addPending(value: Promise<JsonValue>) {
+        if (this.pending.size === 0) {
+            this.notifyPendingSubscribers(true);
+        }
+
+        this.pending.add(value);
+    }
+
+    private removePending(value: Promise<JsonValue>) {
+        const isRemoved = this.pending.delete(value);
+
+        if (isRemoved && this.pending.size === 0) {
+            this.notifyPendingSubscribers(false);
+        }
+    }
+
     private notifySubscribers(key: string, value: JsonValue) {
         this.subscribers.get(key)?.forEach(subscriber => subscriber(key, value));
+    }
+
+    private notifyPendingSubscribers(isPending: boolean) {
+        this.pendingSubscribers.forEach(subscriber => subscriber(isPending));
     }
 }
 
