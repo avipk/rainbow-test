@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import RainbowslotProvider from "@/s-rainbow/Provider/PathnameRefetchRainbowDataProvider";
+import RainbowDataProvider from "@/s-rainbow/Provider/PathnameRefetchRainbowDataProvider";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -22,9 +22,9 @@ export default function RootLayout({
         <div className="menu">
           {ids.map(id => <Link className="link" href={`/pages/${id}`} key={id}>page {id}</Link>)}
         </div>
-        <RainbowslotProvider>
+        <RainbowDataProvider>
           {children}
-        </RainbowslotProvider>
+        </RainbowDataProvider>
       </body>
     </html>
   );

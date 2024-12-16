@@ -20,6 +20,12 @@ class FactsRegistry {
         this.pendingSubscribers = new Set();
     }
 
+    /**
+     * Register a fact-supllier for given fact-key
+     * @param key Key to store the supplier result
+     * @param supplier Suplly function return a fact value
+     * @returns updater function 
+     */
     registerFact(key: string, supplier: FactSupplier): FactUpdater {
         this.generateValue(key, supplier);
 
@@ -33,21 +39,38 @@ class FactsRegistry {
         return updater;
     }
 
-    subscribe(key: string, subsriber: FactSubscriber) {
+    /**
+     * Subscribe for updates upon facts updates
+     * @param key updating fact key 
+     * @param subscriber handler to execute when fact is updated
+     * @returns handler for unsubscribing from fact updates
+     */
+    subscribe(key: string, subscriber: FactSubscriber) {
         if (!this.subscribers.has(key)) {
             this.subscribers.set(key, new Set());
         }
 
-        this.subscribers.get(key)?.add(subsriber);
+        this.subscribers.get(key)?.add(subscriber);
+
+        // Call immediately with the current value
+        const factValue = this.facts.get(key);
+        if (factValue) {
+            subscriber(key, factValue);
+        }
 
         const unsubscribe = () => {
-            this.subscribers.get(key)?.delete(subsriber);
+            this.subscribers.get(key)?.delete(subscriber);
         };
 
         return unsubscribe;
     }
 
-    subscribePending(subscriber: PendingSubscriber) {
+    /**
+     * Subscribe to pending state updates
+     * @param subscriber handler to execute when pending state changes
+     * @returns handler for unsubscribing from pending state updates
+     */
+    subscribeToPending(subscriber: PendingSubscriber) {
         this.pendingSubscribers.add(subscriber);
 
         const unsubscribe = () => this.pendingSubscribers.delete(subscriber);
@@ -55,6 +78,11 @@ class FactsRegistry {
         return unsubscribe;
     }
 
+    /**
+     * Get the value of a specific fact
+     * @param key fact key
+     * @returns fact value
+     */
     getFact(key: string) {
         return this.facts.get(key);
     }
@@ -81,7 +109,10 @@ class FactsRegistry {
         }
 
         value
-            .then(resolved => this.facts.set(key, resolved))
+            .then(resolved => {
+                this.facts.set(key, resolved);
+                console.info('::::::: fact value', key, resolved);
+            })
             .finally(() => this.removePending(value));
 
         return value;

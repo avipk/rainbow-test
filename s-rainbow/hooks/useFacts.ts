@@ -1,9 +1,9 @@
 'use client'; 
 
 import { useEffect, useState } from "react";
-import { FactProvider, Facts, JsonObject, JsonValue } from "../types";
+import { FactSupplier, Facts, JsonObject, JsonValue } from "../types";
 
-export default function useFacts(factsProviders: FactProvider[]) {
+export default function useFacts(factsProviders: FactSupplier[]) {
     const [ facts, setFacts ] = useState<JsonObject|null>(null);
     const [ isPending, setIsPending ] = useState(false);
 
