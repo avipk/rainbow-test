@@ -98,7 +98,7 @@ export default function RainbowDataProvider({ children, invalidateProp, factsSup
         window['factsRegistry'] = factsRegistry.current;
 
         const fetchData = () => {
-            console.info('::::::: fetch test', facts, isPending);
+            console.info('::::::: should send fetch test', facts, isPending);
             if (!facts || Object.keys(facts).length === 0 || isPending) {
                 return;
             }

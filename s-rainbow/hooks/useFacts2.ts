@@ -22,6 +22,8 @@ export default function useFacts(keys: string[]) {
         const unsubscribePending = factRegistry.subscribeToPending(setIsPending);
 
         return () => {
+            console.info(':::::::: un-subscribing');
+
             unsubscribers.forEach(unsubscribe => unsubscribe());
             unsubscribePending();
         }

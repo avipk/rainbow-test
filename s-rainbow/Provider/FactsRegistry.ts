@@ -27,7 +27,10 @@ class FactsRegistry {
      * @returns updater function 
      */
     registerFact(key: string, supplier: FactSupplier): FactUpdater {
-        this.generateValue(key, supplier);
+        this.generateValue(key, supplier).then(resolved => {
+            console.info(':::::: after registering fact and resolving:', resolved);
+            this.notifySubscribers(key, resolved);
+    });
 
         const updater = async () => {
             const value = await this.generateValue(key, supplier);
@@ -47,6 +50,7 @@ class FactsRegistry {
      */
     subscribe(key: string, subscriber: FactSubscriber) {
         if (!this.subscribers.has(key)) {
+            console.info(':::::::: creating subsrber set for:', key);
             this.subscribers.set(key, new Set());
         }
 
@@ -55,6 +59,7 @@ class FactsRegistry {
         // Call immediately with the current value
         const factValue = this.facts.get(key);
         if (factValue) {
+            console.info('::::: calling subscriber for fact', key);
             subscriber(key, factValue);
         }
 
@@ -110,7 +115,7 @@ class FactsRegistry {
 
         value
             .then(resolved => {
-                this.facts.set(key, resolved);
+                this.facts.set(key, resolved);                
                 console.info('::::::: fact value', key, resolved);
             })
             .finally(() => this.removePending(value));
@@ -135,6 +140,7 @@ class FactsRegistry {
     }
 
     private notifySubscribers(key: string, value: JsonValue) {
+        console.info(':::::: notifying about:', key, value, this.subscribers);
         this.subscribers.get(key)?.forEach(subscriber => subscriber(key, value));
     }
 
