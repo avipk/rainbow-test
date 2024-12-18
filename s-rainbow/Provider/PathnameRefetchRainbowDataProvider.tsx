@@ -1,10 +1,12 @@
 'use client';
 
 import { usePathname } from "next/navigation";
-import RainbowDataProvider, { RainbowDataProviderProps } from "./RainbowDataProvider";
+import RainbowProvider from "./RainbowProvider";
 import facts from '../facts/facts';
+import { DataProviderProps } from "./data/DataProvider";
 
-type PathnameRefetchRainbowDataProviderProps = Omit<RainbowDataProviderProps, 'invalidateProp' | 'factsSuppliers'>
+
+type PathnameRefetchRainbowDataProviderProps = Omit<DataProviderProps, 'invalidateProp' | 'factsSuppliers'>
 
 /**
  * Triggers a refetch for Rainbow data up on pathname cahnge
@@ -12,5 +14,5 @@ type PathnameRefetchRainbowDataProviderProps = Omit<RainbowDataProviderProps, 'i
 export default function PathnameRefetchRainbowDataProvider(props: PathnameRefetchRainbowDataProviderProps) {
     const pathname = usePathname();
 
-    return <RainbowDataProvider invalidateProp={pathname} factsSuppliers={facts} {...props} />
+    return <RainbowProvider invalidateProp={pathname} factsSuppliers={facts} {...props} />
 }

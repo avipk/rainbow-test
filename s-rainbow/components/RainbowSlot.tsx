@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect } from "react";
-import { useSlotsRegistration, useSlotData } from '../hooks';
+import useSlotsRegistration from '../Provider/slots/useSlotsRegistration';
+import useSlotData from '../Provider/data/useSlotData';
 
 interface RainbowSlotProps {
     id: string;

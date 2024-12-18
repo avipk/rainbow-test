@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { RainbowSlotsContext } from "../Provider/RainbowDataProvider";
+import { RainbowSlotsContext } from "./SlotsProvider";
 
 export default function useSlotsRegistration() {
     return useContext(RainbowSlotsContext);

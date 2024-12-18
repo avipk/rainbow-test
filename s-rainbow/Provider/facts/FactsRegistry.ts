@@ -1,4 +1,4 @@
-import { JsonValue } from "../types";
+import { JsonValue } from "../../types";
 
 type FactSupplier = () => JsonValue | Promise<JsonValue>;
 type FactUpdater = () => Promise<void>;
@@ -28,7 +28,6 @@ class FactsRegistry {
      */
     registerFact(key: string, supplier: FactSupplier): FactUpdater {
         this.generateValue(key, supplier).then(resolved => {
-            console.info(':::::: after registering fact and resolving:', resolved);
             this.notifySubscribers(key, resolved);
     });
 
@@ -50,7 +49,6 @@ class FactsRegistry {
      */
     subscribe(key: string, subscriber: FactSubscriber) {
         if (!this.subscribers.has(key)) {
-            console.info(':::::::: creating subsrber set for:', key);
             this.subscribers.set(key, new Set());
         }
 
@@ -59,7 +57,7 @@ class FactsRegistry {
         // Call immediately with the current value
         const factValue = this.facts.get(key);
         if (factValue) {
-            console.info('::::: calling subscriber for fact', key);
+            console.info('::::: calling subscriber for fact', key, subscriber);
             subscriber(key, factValue);
         }
 
@@ -84,6 +82,17 @@ class FactsRegistry {
     }
 
     /**
+     * Resets the registry
+     */
+    reset() {
+        this.facts.clear();
+        this.subscribers.clear();
+        this.pending.clear();
+        this.updaters.clear();
+        this.pendingSubscribers.clear();
+    }
+
+    /**
      * Get the value of a specific fact
      * @param key fact key
      * @returns fact value
@@ -94,6 +103,10 @@ class FactsRegistry {
 
     getAllFacts() {
         return Object.fromEntries(this.facts.entries());
+    }
+
+    getFactsKeys() {
+        return [...this.facts.keys()];
     }
 
     getUpdater(key: string) {
@@ -140,7 +153,6 @@ class FactsRegistry {
     }
 
     private notifySubscribers(key: string, value: JsonValue) {
-        console.info(':::::: notifying about:', key, value, this.subscribers);
         this.subscribers.get(key)?.forEach(subscriber => subscriber(key, value));
     }
 

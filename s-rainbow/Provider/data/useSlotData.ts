@@ -1,8 +1,8 @@
 import { useContext } from "react";
-import { RainbowDataContext } from '../Provider/RainbowDataProvider';
+import { DataContext } from '../data/DataProvider';
 
 export default function useSlotData(slotId: string) {
-    const { data } = useContext(RainbowDataContext);
+    const { data } = useContext(DataContext);
 
     return data.find(tool => tool.slotId === slotId);
 
