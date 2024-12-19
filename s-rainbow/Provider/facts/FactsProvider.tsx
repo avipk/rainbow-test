@@ -26,6 +26,7 @@ export default function FactsProvider({ factsSuppliers, children }: FactsProvide
     const factsKeys = useMemo(() => factsSuppliers.map(s => s[0]), [factsSuppliers]);
 
     useEffect(() => {
+        // @ts-expect-error this for debug
         window['factsRegistry'] = factsRegistry.current;
     }, []);
 
@@ -64,7 +65,7 @@ export function useFacts() {
     const factsKeys = useFactsKeys();
 
     const factsRef = useRef<JsonObject>({});
-    const [isPending, setIsPending] = useState(false);
+    const [isPending, setIsPending] = useState(factRegistry.isPending());
 
     const subscribeHandler: FactSubscriber = (key, value) => {
         factsRef.current = {
@@ -76,7 +77,10 @@ export function useFacts() {
     useEffect(() => {
         const unsubscribers = factsKeys.map(key => factRegistry.subscribe(key, subscribeHandler));
 
-        const unsubscribePending = factRegistry.subscribeToPending(setIsPending);
+        const unsubscribePending = factRegistry.subscribeToPending((pendingStatus) => {
+            console.info(':::::::::::: useFacts - effect isPending:', pendingStatus);
+            setIsPending(pendingStatus)
+        });
 
         return () => {
             unsubscribers.forEach(unsubscribe => unsubscribe());

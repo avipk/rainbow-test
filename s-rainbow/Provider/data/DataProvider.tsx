@@ -2,7 +2,7 @@
 
 import { createContext, useEffect, useState } from "react";
 import type { RainbowToolFragment } from "../../types";
-import mockData from './mockData';
+import selectRandomData from './mockData';
 import useSlotsRegistration from "../slots/useSlotsRegistration";
 import { useFacts } from "../facts/FactsProvider";
 
@@ -49,20 +49,24 @@ export default function DataProvider({ invalidateProp, children }: DataProviderP
     const invalidateKey = getInvalidateKey(invalidateProp);
 
     const [facts, isPending] = useFacts();
+    console.info('::::::: DataProvider - after use-facts', facts, isPending);
 
     useEffect(() => {
         const slotIds = slotsRegistration.getSlotsList();
-        console.info(':::::::  use effect data-provider', slotIds, facts, isPending);
+        console.info('::::::: DataProvider - use effect data-provider', slotIds, facts, isPending);
 
         const fetchData = () => {
             if (!facts || Object.keys(facts).length === 0 || isPending) {
                 return;
             }
 
+            console.info(':::: DataProvider - fetching data:', facts, slotIds);
+
             setTimeout(async () => {
-                const data = await Promise.resolve(mockData);
+                const data = await Promise.resolve(selectRandomData());
 
                 if (data) {
+                    console.info(':::: DataProvider - data available', data);
                     setContenxtData(ctx => ({
                         ...ctx,
                         data: data.data.Rainbow.tools
@@ -72,7 +76,6 @@ export default function DataProvider({ invalidateProp, children }: DataProviderP
         };
 
         if (slotIds.length > 0) {
-            console.info(':::: fetching data:', facts, slotIds);
             fetchData();
         }
     }, [facts, invalidateKey, isPending, slotsRegistration]);
