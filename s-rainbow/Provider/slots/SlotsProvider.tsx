@@ -28,6 +28,7 @@ const defaultRainbowSlotsContext: TRainbowSlotsContext = {
 export const RainbowSlotsContext = createContext<TRainbowSlotsContext>(defaultRainbowSlotsContext);
 
 export default function SlotsProvider({ children }: SlotsProviderProps) {
+    console.info('::::::: SlotsProvider - render function');
     // Stores the slot-ids avalable in provider context.
     const slotIds = useRef(new Set<string>());
 

@@ -22,13 +22,9 @@ interface TFactsContext {
 const FactsContext = createContext<TFactsContext | null>(null);
 
 export default function FactsProvider({ factsSuppliers, children }: FactsProviderProps) {
+    console.info('::::::: FactsProvider - render function');
     const factsRegistry = useRef(new FactsRegistry());
     const factsKeys = useMemo(() => factsSuppliers.map(s => s[0]), [factsSuppliers]);
-
-    useEffect(() => {
-        // @ts-expect-error this for debug
-        window['factsRegistry'] = factsRegistry.current;
-    }, []);
 
     return (
         <FactsContext.Provider value={{ factsRegistry: factsRegistry.current, factsKeys, }} >
@@ -39,6 +35,7 @@ export default function FactsProvider({ factsSuppliers, children }: FactsProvide
 }
 
 export function useFactsRegistry() {
+    console.info('::::::: useFactsRegistry - called');
     const factsContext = useContext(FactsContext);
 
 
@@ -50,6 +47,7 @@ export function useFactsRegistry() {
 }
 
 export function useFactsKeys() {
+    console.info('::::::: useFactsKeys - called');
     const factsContext = useContext(FactsContext);
 
 
@@ -61,6 +59,7 @@ export function useFactsKeys() {
 }
 
 export function useFacts() {
+    console.info('::::::: useFacts - called');
     const factRegistry = useFactsRegistry();
     const factsKeys = useFactsKeys();
 
@@ -75,10 +74,10 @@ export function useFacts() {
     };
 
     useEffect(() => {
+        console.info('::::::: useFacts - effect');
         const unsubscribers = factsKeys.map(key => factRegistry.subscribe(key, subscribeHandler));
 
         const unsubscribePending = factRegistry.subscribeToPending((pendingStatus) => {
-            console.info(':::::::::::: useFacts - effect isPending:', pendingStatus);
             setIsPending(pendingStatus)
         });
 

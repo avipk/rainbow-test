@@ -29,7 +29,7 @@ class FactsRegistry {
     registerFact(key: string, supplier: FactSupplier): FactUpdater {
         this.generateValue(key, supplier).then(resolved => {
             this.notifySubscribers(key, resolved);
-    });
+        });
 
         const updater = async () => {
             const value = await this.generateValue(key, supplier);
@@ -57,7 +57,6 @@ class FactsRegistry {
         // Call immediately with the current value
         const factValue = this.facts.get(key);
         if (factValue) {
-            console.info('::::: FactsRegistry - calling subscriber for fact', key, subscriber);
             subscriber(key, factValue);
         }
 
@@ -74,8 +73,8 @@ class FactsRegistry {
      * @returns handler for unsubscribing from pending state updates
      */
     subscribeToPending(subscriber: PendingSubscriber) {
-        this.pendingSubscribers.add(subscriber);    
-        
+        this.pendingSubscribers.add(subscriber);
+
         // call subscriber immediately
         subscriber(this.isPending());
 
@@ -131,8 +130,7 @@ class FactsRegistry {
 
         value
             .then(resolved => {
-                this.facts.set(key, resolved);                
-                console.info('::::::: FactsRegistry - fact value', key, resolved);
+                this.facts.set(key, resolved);
             })
             .finally(() => this.removePending(value));
 
@@ -160,7 +158,6 @@ class FactsRegistry {
     }
 
     private notifyPendingSubscribers(isPending: boolean) {
-        console.info('::::::::::::: FactsRegistry - notifyPendingSubscribers', isPending, this.pendingSubscribers);
         this.pendingSubscribers.forEach(subscriber => subscriber(isPending));
     }
 }

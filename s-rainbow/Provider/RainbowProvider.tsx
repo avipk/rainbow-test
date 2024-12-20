@@ -12,6 +12,7 @@ interface RainbowProviderProps {
 };
 
 export default function RainbowProvider({ factsSuppliers, invalidateProp, children }: RainbowProviderProps) {
+    console.info('::::::: RainbowProvider - render function');
     return (
         <SlotsProvider>
             <FactsProvider factsSuppliers={factsSuppliers}>

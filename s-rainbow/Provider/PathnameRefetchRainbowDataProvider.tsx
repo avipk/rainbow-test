@@ -12,6 +12,7 @@ type PathnameRefetchRainbowDataProviderProps = Omit<DataProviderProps, 'invalida
  * Triggers a refetch for Rainbow data up on pathname cahnge
  */
 export default function PathnameRefetchRainbowDataProvider(props: PathnameRefetchRainbowDataProviderProps) {
+    console.info('::::::: PathnameRefetchRainbowDataProvider - render function');
     const pathname = usePathname();
 
     return <RainbowProvider invalidateProp={pathname} factsSuppliers={facts} {...props} />

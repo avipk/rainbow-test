@@ -9,10 +9,12 @@ interface RainbowSlotProps {
 }
 
 export default function RainbowSlot({ id }: RainbowSlotProps) {
+    console.info('::::::: RainbowSlot - render function');
     const { registerSlot, unregisterSlot } = useSlotsRegistration();
     const slotData = useSlotData(id);
 
     useEffect(() => {
+        console.info('::::::: RainbowSlot - effect - register slot');
         registerSlot(id);
 
         return () => {
